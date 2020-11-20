@@ -3,8 +3,13 @@ package main
 import (
 	"fmt"
 	"math"
+	"reflect"
 	"strings"
 )
+
+func init() {
+	fmt.Println("main.init")
+}
 
 func main() {
 	fmt.Println("Hello World!")
@@ -63,7 +68,9 @@ func main() {
 	funcDemo()
 	deferDemo()
 	pointDemo()
-	fmt.Println("end")
+	structDemo()
+	interfaceDemo()
+	reflectDemo()
 }
 
 func sqrtDemo() {
@@ -300,4 +307,305 @@ func pointDemo() {
 	fmt.Printf("%T\n", b1) // *bool
 	fmt.Println(*a1)       // 0
 	fmt.Println(*b1)       // false
+}
+
+//类型定义
+type NewInt int
+
+//类型别名
+type MyInt = int
+
+type Person struct {
+	name string
+	age  int
+}
+
+func NewPerson(name string, age int) *Person {
+	return &Person{
+		name,
+		age,
+	}
+}
+
+func (p Person) Dream() {
+	fmt.Println("I have a dream")
+}
+
+func structDemo() {
+	var a NewInt
+	var b MyInt
+	fmt.Printf("type of a: %T\n", a)
+	fmt.Printf("type of b: %T\n", b)
+
+	type person struct {
+		name string
+		city string
+		age  int8
+	}
+
+	type person2 struct {
+		name, city string
+		age        int8
+	}
+
+	var p1 person
+	p1.name = "dp"
+	p1.city = "shanghai"
+	p1.age = 18
+	fmt.Printf("p1=%v\n", p1)
+	fmt.Printf("p1=%#v\n", p1)
+	fmt.Printf("p1: %T\n", &p1) //p1: *main.person
+
+	var user struct {
+		Name string
+		Age  int
+	}
+	user.Name = "xx"
+	user.Age = 18
+	fmt.Printf("%#v\n", user)
+	fmt.Printf("user: %T\n", &user) //user: *struct { Name string; Age int }
+
+	var p2 = new(person)
+	p2.name = "dp2"
+	p2.city = "shanghai2"
+	fmt.Printf("p2: %T\n", p2) //p2: *main.person
+
+	p3 := &person{}
+	fmt.Printf("%T\n", p3)     //*main.person
+	fmt.Printf("p3=%#v\n", p3) //p3=&main.person{name:"", city:"", age:0}
+	p3.name = "七米"
+	p3.age = 30
+	p3.city = "成都"
+	fmt.Printf("p3=%#v\n", p3) //p3=&main.person{name:"七米", city:"成都", age:30}
+
+	var p4 person
+	fmt.Printf("p4=%#v\n", p4) //p4=main.person{name:"", city:"", age:0}
+
+	p5 := person{
+		name: "小王子",
+		city: "北京",
+		age:  18,
+	}
+	fmt.Printf("p5=%#v\n", p5) //p5=main.person{name:"小王子", city:"北京", age:18}
+
+	p6 := &person{
+		name: "小王子",
+		city: "北京",
+		age:  18,
+	}
+	fmt.Printf("p6=%#v\n", p6) //p6=&main.person{name:"小王子", city:"北京", age:18}
+
+	p8 := &person{
+		"沙河娜扎",
+		"北京",
+		28,
+	}
+	fmt.Printf("p8=%#v\n", p8) //p8=&main.person{name:"沙河娜扎", city:"北京", age:28}
+
+	type student struct {
+		name string
+		age  int
+	}
+	m := make(map[string]*student)
+	stus := []student{
+		{name: "小王子", age: 18},
+		{name: "娜扎", age: 23},
+		{name: "大王八", age: 9000},
+	}
+
+	fmt.Printf("stus %p\n", &stus)
+
+	for i, stu := range stus {
+		fmt.Printf("stu,index: %d %p\n", i, &stu)
+		m[stu.name] = &stu
+	}
+	for k, v := range m {
+		fmt.Println(k, "=>", v.name)
+	}
+
+	p9 := NewPerson("dp", 18)
+	p9.Dream()
+	fmt.Printf("p9=%#v\n", p9)
+	fmt.Println("structDemo")
+}
+
+// Sayer 接口
+type Sayer interface {
+	say()
+}
+
+// Mover 接口
+type Mover interface {
+	move()
+}
+
+// 接口嵌套
+type animal interface {
+	Sayer
+	Mover
+}
+
+type cat struct {
+	name string
+}
+
+func (c cat) say() {
+	fmt.Println("喵喵喵")
+}
+
+func (c cat) move() {
+	fmt.Println("猫会动")
+}
+
+func showType(a interface{}) {
+	_, ok := a.(string)
+	if ok {
+		fmt.Println("string")
+	}
+	fmt.Printf("type:%T value:%v\n", a, a)
+
+	switch v := a.(type) {
+	case string:
+		fmt.Printf("x is a string，value is %v\n", v)
+	case int:
+		fmt.Printf("x is a int is %v\n", v)
+	case bool:
+		fmt.Printf("x is a bool is %v\n", v)
+	default:
+		fmt.Println("unsupport type！")
+	}
+}
+
+func interfaceDemo() {
+	var x Mover
+	var wangcai = cat{} // 旺财是dog类型
+	x = wangcai         // x可以接收dog类型
+	var fugui = &cat{}  // 富贵是*dog类型
+	x = fugui           // x可以接收*dog类型
+	x.move()
+
+	var x2 animal
+	x2 = cat{name: "花花"}
+	x2.move()
+	x2.say()
+
+	showType("str")
+	showType(0)
+
+	fmt.Println("interfaceDemo")
+}
+
+func reflectType(x interface{}) {
+	t := reflect.TypeOf(x)
+	fmt.Printf("type: %v\n", t)
+	fmt.Printf("type: %v, kind: %v\n", t.Name(), t.Kind())
+	//fmt.Printf("type: %T\n", x)
+}
+
+func reflectValue(x interface{}) {
+	v := reflect.ValueOf(x)
+	k := v.Kind()
+	switch k {
+	case reflect.Int64:
+		fmt.Printf("type is int64, value is %d\n", int64(v.Int()))
+	case reflect.Float32:
+		fmt.Printf("type is float32, value is %f\n", float32(v.Float()))
+	case reflect.Float64:
+		fmt.Printf("type is float64, value is %f\n", float64(v.Float()))
+	}
+}
+
+func reflectSetValue(x interface{}) {
+	v := reflect.ValueOf(x)
+	if v.Kind() == reflect.Int64 {
+		v.SetInt(200)
+	}
+	// 反射中使用 Elem()方法获取指针对应的值
+	if v.Elem().Kind() == reflect.Int64 {
+		v.Elem().SetInt(200)
+	}
+}
+
+type student struct {
+	Name  string
+	Score int
+}
+
+// 给student添加两个方法 Study和Sleep(注意首字母大写)
+func (s student) Study() string {
+	msg := "好好学习，天天向上。"
+	fmt.Println(msg)
+	return msg
+}
+
+func (s student) Sleep() string {
+	msg := "好好睡觉，快快长大。"
+	fmt.Println(msg)
+	return msg
+}
+
+func reflectDemo() {
+	var a float32 = 3.14
+	reflectType(a)
+	var b int64 = 100
+	reflectType(b)
+
+	type person struct {
+		name string
+		age  int
+	}
+
+	var d = person{
+		name: "zwz",
+		age:  18,
+	}
+	reflectType(d)
+	reflectValue(a)
+	reflectValue(b)
+
+	reflectSetValue(&b)
+	fmt.Printf("b: %d\n", b)
+
+	// *int类型空指针
+	var a1 *int
+	fmt.Println("var a *int IsNil:", reflect.ValueOf(a1).IsNil())
+	// nil值
+	fmt.Println("nil IsValid:", reflect.ValueOf(nil).IsValid())
+	// 实例化一个匿名结构体
+	b1 := struct{}{}
+	// 尝试从结构体中查找"abc"字段
+	fmt.Println("存在的结构体成员:", reflect.ValueOf(b1).FieldByName("abc").IsValid())
+	// 尝试从结构体中查找"abc"方法
+	fmt.Println("存在的结构体方法:", reflect.ValueOf(b1).MethodByName("abc").IsValid())
+	// map
+	c := map[string]int{}
+	// 尝试从map中查找一个不存在的键
+	fmt.Println("map中不存在的键：", reflect.ValueOf(c).MapIndex(reflect.ValueOf("娜扎")).IsValid())
+
+	stu1 := student{
+		Name:  "zs",
+		Score: 90,
+	}
+	t := reflect.TypeOf(stu1)
+	fmt.Println(t.Name(), t.Kind())
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+		fmt.Printf("name:%s index:%d type:%v json tag:%v\n", field.Name, field.Index, field.Type, field.Tag.Get("json"))
+	}
+	if scoreField, ok := t.FieldByName("Score"); ok {
+		fmt.Printf("name:%s index:%d type:%v json tag:%v\n", scoreField.Name, scoreField.Index, scoreField.Type, scoreField.Tag.Get("json"))
+	}
+
+	v := reflect.ValueOf(stu1)
+
+	fmt.Println(t.NumMethod())
+	for i := 0; i < v.NumMethod(); i++ {
+		methodType := v.Method(i).Type()
+		fmt.Printf("method name: %s\n", t.Method(i).Name)
+		fmt.Printf("method %s\n", methodType)
+
+		// 通过反射调用方法传递的参数必须是 []reflect.Value 类型
+		var args = []reflect.Value{}
+		v.Method(i).Call(args)
+	}
 }

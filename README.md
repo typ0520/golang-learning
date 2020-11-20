@@ -413,3 +413,436 @@ value of c:10
 make只用于slice、map以及channel的初始化，返回的还是这三个引用类型本身；
 而new用于类型的内存分配，并且内存对应的值为类型零值，返回的是指向类型的指针。
 ```
+
+### 结构体
+
+```
+type 类型名 struct {
+    字段名 字段类型
+    字段名 字段类型
+    …
+}
+```
+
+```
+//类型定义
+type NewInt int
+//类型别名
+type MyInt = int
+
+func structDemo() {
+	var a NewInt
+	var b MyInt
+    fmt.Printf("type of a:%T\n", a) //type of a:main.NewInt
+	fmt.Printf("type of b:%T\n", b) //type of b:int
+}
+```
+
+```
+type person struct {
+    name string
+    city string
+    age int8
+}
+
+type person2 struct {
+    name, city string
+    age int8
+}
+
+var p1 person
+p1.name = "dp"
+p1.city = "shanghai"
+p1.age = 18
+fmt.Printf("p1=%v\n", p1)
+fmt.Printf("p1=%#v\n", p1)
+fmt.Printf("p1: %T\n", &p1)//p1: *main.person
+
+//指针类型结构体
+var p2 = new(person)
+p2.name = "dp2"
+p2.city = "shanghai2"
+fmt.Printf("p2: %T\n", p2)//p2: *main.person
+
+p3 := &person{}
+fmt.Printf("%T\n", p3)     //*main.person
+fmt.Printf("p3=%#v\n", p3) //p3=&main.person{name:"", city:"", age:0}
+p3.name = "七米"
+p3.age = 30
+p3.city = "成都"
+fmt.Printf("p3=%#v\n", p3) //p3=&main.person{name:"七米", city:"成都", age:30}
+
+var p4 person
+fmt.Printf("p4=%#v\n", p4) //p4=main.person{name:"", city:"", age:0}
+
+p5 := person{
+	name: "小王子",
+	city: "北京",
+	age:  18,
+}
+fmt.Printf("p5=%#v\n", p5) //p5=main.person{name:"小王子", city:"北京", age:18}
+
+p6 := &person{
+	name: "小王子",
+	city: "北京",
+	age:  18,
+}
+fmt.Printf("p6=%#v\n", p6) //p6=&main.person{name:"小王子", city:"北京", age:18}
+
+p8 := &person{
+	"沙河娜扎",
+	"北京",
+	28,
+}
+fmt.Printf("p8=%#v\n", p8) //p8=&main.person{name:"沙河娜扎", city:"北京", age:28}
+```
+
+- 匿名结构体
+
+```
+var user struct{Name string; Age int}
+user.Name = "xx"
+user.Age = 18
+fmt.Printf("%#v\n", user)
+fmt.Printf("user: %T\n", &user)//user: *struct { Name string; Age int }
+```
+
+- 结构体函数
+```
+func (接收者变量 接收者类型) 方法名(参数列表) (返回参数) {
+    函数体
+}
+```
+
+```
+//Person 结构体
+type Person struct {
+	name string
+	age  int8
+}
+
+//NewPerson 构造函数
+func NewPerson(name string, age int8) *Person {
+	return &Person{
+		name: name,
+		age:  age,
+	}
+}
+
+//Dream Person做梦的方法
+func (p Person) Dream() {
+	fmt.Printf("%s的梦想是学好Go语言！\n", p.name)
+}
+
+func main() {
+	p1 := NewPerson("小王子", 25)
+	p1.Dream()
+}
+```
+
+- 结构体的“继承”
+
+```
+//Animal 动物
+type Animal struct {
+	name string
+}
+
+func (a *Animal) move() {
+	fmt.Printf("%s会动！\n", a.name)
+}
+
+//Dog 狗
+type Dog struct {
+	Feet    int8
+	*Animal //通过嵌套匿名结构体实现继承
+}
+
+func (d *Dog) wang() {
+	fmt.Printf("%s会汪汪汪~\n", d.name)
+}
+
+func main() {
+	d1 := &Dog{
+		Feet: 4,
+		Animal: &Animal{ //注意嵌套的是结构体指针
+			name: "乐乐",
+		},
+	}
+	d1.wang() //乐乐会汪汪汪~
+	d1.move() //乐乐会动！
+}
+```
+
+- 序列化
+
+```
+//Student 学生
+type Student struct {
+	ID     int
+	Gender string
+	Name   string
+}
+
+//Class 班级
+type Class struct {
+	Title    string
+	Students []*Student
+}
+
+func main() {
+	c := &Class{
+		Title:    "101",
+		Students: make([]*Student, 0, 200),
+	}
+	for i := 0; i < 10; i++ {
+		stu := &Student{
+			Name:   fmt.Sprintf("stu%02d", i),
+			Gender: "男",
+			ID:     i,
+		}
+		c.Students = append(c.Students, stu)
+	}
+	//JSON序列化：结构体-->JSON格式的字符串
+	data, err := json.Marshal(c)
+	if err != nil {
+		fmt.Println("json marshal failed")
+		return
+	}
+	fmt.Printf("json:%s\n", data)
+	//JSON反序列化：JSON格式的字符串-->结构体
+	str := `{"Title":"101","Students":[{"ID":0,"Gender":"男","Name":"stu00"},{"ID":1,"Gender":"男","Name":"stu01"},{"ID":2,"Gender":"男","Name":"stu02"},{"ID":3,"Gender":"男","Name":"stu03"},{"ID":4,"Gender":"男","Name":"stu04"},{"ID":5,"Gender":"男","Name":"stu05"},{"ID":6,"Gender":"男","Name":"stu06"},{"ID":7,"Gender":"男","Name":"stu07"},{"ID":8,"Gender":"男","Name":"stu08"},{"ID":9,"Gender":"男","Name":"stu09"}]}`
+	c1 := &Class{}
+	err = json.Unmarshal([]byte(str), c1)
+	if err != nil {
+		fmt.Println("json unmarshal failed!")
+		return
+	}
+	fmt.Printf("%#v\n", c1)
+}
+
+```
+
+### package
+
+- 首字母小写，外部包不可见，只能在当前包内使用
+- 首字母大写，外部包可见，可在其他包中使用(变量、函数、结构体、接口)
+- 单行导入
+```
+import "包1"
+import "包2"
+```
+
+- 多行导入
+```
+import (
+    "包1"
+    "包2"
+)
+```
+
+- 自定义包名
+
+import 别名 "包的路径"
+
+```
+import "fmt"
+import m "github.com/Q1mi/studygo/pkg_test"
+
+func main() {
+	fmt.Println(m.Add(100, 200))
+	fmt.Println(m.Mode)
+}
+```
+
+```
+import (
+    "fmt"
+    m "github.com/Q1mi/studygo/pkg_test"
+ )
+
+func main() {
+	fmt.Println(m.Add(100, 200))
+	fmt.Println(m.Mode)
+}
+```
+
+- init()函数
+
+![](https://www.liwenzhou.com/images/Go/package/init01.png)
+![](https://www.liwenzhou.com/images/Go/package/init02.png)
+
+
+### 接口
+
+接口在命名时，一般会在单词后面添加er
+
+当方法名首字母是大写且这个接口类型名首字母也是大写时，这个方法可以被接口所在的包（package）之外的代码访问。
+
+```
+type 接口类型名 interface{
+    方法名1( 参数列表1 ) 返回值列表1
+    方法名2( 参数列表2 ) 返回值列表2
+    …
+}
+```
+
+```
+type Mover interface {
+	move()
+}
+
+type dog struct {}
+
+func (d dog) move() {
+	fmt.Println("狗会动")
+}
+
+var x Mover
+var wangcai = dog{} // 旺财是dog类型
+x = wangcai         // x可以接收dog类型
+var fugui = &dog{}  // 富贵是*dog类型
+x = fugui           // x可以接收*dog类型
+x.move()
+```
+
+- 空接口
+
+```
+// 定义一个空接口x
+var x interface{}
+s := "Hello 沙河"
+x = s
+fmt.Printf("type:%T value:%v\n", x, x)
+i := 100
+x = i
+fmt.Printf("type:%T value:%v\n", x, x)
+b := true
+x = b
+fmt.Printf("type:%T value:%v\n", x, x)
+
+// 空接口作为函数参数
+func showType(a interface{}) {
+	_, ok := a.(string)
+	if ok {
+		fmt.Println("string")
+	}
+	fmt.Printf("type:%T value:%v\n", a, a)
+
+	switch v := a.(type) {
+	case string:
+		fmt.Printf("x is a string，value is %v\n", v)
+	case int:
+		fmt.Printf("x is a int is %v\n", v)
+	case bool:
+		fmt.Printf("x is a bool is %v\n", v)
+	default:
+		fmt.Println("unsupport type！")
+	}
+}
+```
+
+### 反射
+
+```
+func reflectX(x interface{}) {
+	t := reflect.TypeOf(x)
+	fmt.Printf("type: %v, kind: %v\n", t.Name(), t.Kind())
+	v := reflect.ValueOf(x)
+
+	if v.Kind() == reflect.Int64 {
+		v.SetInt(100) //修改的是副本，reflect包会引发panic
+	}
+	// 反射中使用 Elem()方法获取指针对应的值
+	if v.Elem().Kind() == reflect.Int64 {
+		v.Elem().SetInt(200)
+	}
+}
+```
+
+- isNil()
+
+报告v持有的值是否为nil。v持有的值的分类必须是通道、函数、接口、映射、指针、切片之一；否则IsNil函数会导致panic
+
+- isValid()
+
+返回v是否持有一个值。如果v是Value零值会返回假，此时v除了IsValid、String、Kind之外的方法都会导致panic
+
+- 结构体反射
+
+```
+Field(i int) StructField	根据索引，返回索引对应的结构体字段的信息。
+NumField() int	返回结构体成员字段数量。
+FieldByName(name string) (StructField, bool)	根据给定字符串返回字符串对应的结构体字段的信息。
+FieldByIndex(index []int) StructField	多层成员访问时，根据 []int 提供的每个结构体的字段索引，返回字段的信息。
+FieldByNameFunc(match func(string) bool) (StructField,bool)	根据传入的匹配函数匹配需要的字段。
+NumMethod() int	返回该类型的方法集中方法的数目
+Method(int) Method	返回该类型方法集中的第i个方法
+MethodByName(string)(Method, bool)	根据方法名返回该类型方法集中的方法
+```
+
+```
+// 给student添加两个方法 Study和Sleep(注意首字母大写)
+func (s student) Study() string {
+	msg := "好好学习，天天向上。"
+	fmt.Println(msg)
+	return msg
+}
+
+func (s student) Sleep() string {
+	msg := "好好睡觉，快快长大。"
+	fmt.Println(msg)
+	return msg
+}
+
+func printMethod(x interface{}) {
+	t := reflect.TypeOf(x)
+	v := reflect.ValueOf(x)
+
+	fmt.Println(t.NumMethod())
+	for i := 0; i < v.NumMethod(); i++ {
+		methodType := v.Method(i).Type()
+		fmt.Printf("method name:%s\n", t.Method(i).Name)
+		fmt.Printf("method:%s\n", methodType)
+		// 通过反射调用方法传递的参数必须是 []reflect.Value 类型
+		var args = []reflect.Value{}
+		v.Method(i).Call(args)
+	}
+}
+```
+
+### 并发    
+
+### 网络编程
+
+### 单元测试
+
+### 问题
+
+```
+type student struct {
+	name string
+	age  int
+}
+
+func main() {
+	m := make(map[string]*student)
+	stus := []student{
+		{name: "小王子", age: 18},
+		{name: "娜扎", age: 23},
+		{name: "大王八", age: 9000},
+	}
+
+	for _, stu := range stus {
+		m[stu.name] = &stu
+	}
+	for k, v := range m {
+		fmt.Println(k, "=>", v.name)
+	}
+}
+大王八 => 大王八
+小王子 => 大王八
+娜扎 => 大王八
+???
+https://segmentfault.com/a/1190000017527311?utm_campaign=studygolang.com&utm_medium=studygolang.com&utm_source=studygolang.com
+```
