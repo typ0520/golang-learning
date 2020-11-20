@@ -5,6 +5,8 @@ import (
 	"math"
 	"reflect"
 	"strings"
+	"sync"
+	"time"
 )
 
 func init() {
@@ -71,6 +73,7 @@ func main() {
 	structDemo()
 	interfaceDemo()
 	reflectDemo()
+	goroutineDemo()
 }
 
 func sqrtDemo() {
@@ -608,4 +611,49 @@ func reflectDemo() {
 		var args = []reflect.Value{}
 		v.Method(i).Call(args)
 	}
+}
+
+func goroutineDemo() {
+	goroutineDemo1()
+	goroutineDemo2()
+	goroutineDemo3()
+}
+
+func hello() {
+	fmt.Println("Hello Goroutine!")
+}
+
+func goroutineDemo1() {
+	go hello()
+	fmt.Println("main goroutine done!")
+	time.Sleep(time.Second)
+}
+
+var wg sync.WaitGroup
+
+func hello2(i int) {
+	defer wg.Done()
+	fmt.Println("hello goroutine", i)
+}
+
+func goroutineDemo2() {
+	//runtime.GOMAXPROCS(1)
+	for i := 0; i < 10000; i++ {
+		wg.Add(1)
+		go hello2(i)
+	}
+	wg.Wait()
+	fmt.Println("done!")
+}
+
+func recv(c chan int) {
+	ret := <-c
+	fmt.Println("接收成功", ret)
+}
+
+func goroutineDemo3() {
+	ch := make(chan int)
+	go recv(ch)
+	ch <- 10
+	fmt.Println("发送成功")
 }
