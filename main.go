@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math"
+	"strings"
 )
 
 func main() {
@@ -58,6 +59,11 @@ func main() {
 	forDemo()
 	arrayDemo()
 	array2Demo()
+	mapDemo()
+	funcDemo()
+	deferDemo()
+	pointDemo()
+	fmt.Println("end")
 }
 
 func sqrtDemo() {
@@ -118,4 +124,180 @@ func array2Demo() {
 	fmt.Println(a)      //[0 0]
 	fmt.Println(len(a)) //2
 	fmt.Println(cap(a)) //10
+
+	a2 := [5]int{1, 2, 3, 4, 5}
+	s := a2[1:3] // s := a[low:high]
+	fmt.Printf("s:%v len(s):%v cap(s):%v\n", s, len(s), cap(s))
+
+	var s2 []int
+	s2 = append(s, 1)       // [1]
+	s2 = append(s, 2, 3, 4) // [1 2 3 4]
+	fmt.Println(s2)
+}
+
+func mapDemo() {
+	scoreMap := make(map[string]int, 8)
+	scoreMap["张三"] = 90
+	scoreMap["小明"] = 100
+	fmt.Println(scoreMap)
+	fmt.Println(scoreMap["小明"])
+	fmt.Printf("type of a:%T\n", scoreMap)
+
+	userInfo := map[string]string{
+		"username": "typ0520",
+		"pwd":      "111111",
+	}
+	fmt.Println(userInfo)
+
+	v, ok := scoreMap["张三"]
+	if ok {
+		fmt.Println(v)
+	} else {
+		fmt.Println("not found")
+	}
+
+	for k, v := range scoreMap {
+		fmt.Println(k)
+		fmt.Println(v)
+	}
+	for _, v := range scoreMap {
+		fmt.Println(v)
+	}
+	delete(scoreMap, "张三")
+
+	for k, v := range scoreMap {
+		fmt.Println(k)
+		fmt.Println(v)
+	}
+
+	//写一个程序，统计一个字符串中每个单词出现的次数。比如：”how do you do”中how=1 do=2 you=1。
+	str := "how do you do"
+	m := make(map[string]int, 10)
+	for _, v := range strings.Split(str, " ") {
+		_, ok := m[v]
+		if ok {
+			m[v] = m[v] + 1
+		} else {
+			m[v] = 1
+		}
+	}
+
+	for k, v := range m {
+		fmt.Printf("%s : %d", k, v)
+		fmt.Println("")
+	}
+}
+
+func add(x, y int) int {
+	return x + y
+}
+
+func sub(x, y int) int {
+	return x - y
+}
+
+func calc(x, y int, op func(int, int) int) int {
+	return op(x, y)
+}
+
+func getOp(s string) func(int, int) int {
+	switch s {
+	case "+":
+		return add
+	case "-":
+		return sub
+	default:
+		return nil
+	}
+}
+
+func adder(x int) func(int) int {
+	return func(y int) int {
+		x += y
+		return x
+	}
+}
+
+func calc2(base int) (func(int) int, func(int) int) {
+	add := func(i int) int {
+		base += i
+		return base
+	}
+
+	sub := func(i int) int {
+		base -= i
+		return base
+	}
+	return add, sub
+}
+
+func funcDemo() {
+	fmt.Println(calc(1, 2, add))
+	fmt.Println(getOp("+")(1, 2))
+
+	// 将匿名函数保存到变量
+	add := func(x, y int) {
+		fmt.Println(x + y)
+	}
+	add(10, 20) // 通过变量调用匿名函数
+
+	//自执行函数：匿名函数定义完加()直接执行
+	func(x, y int) {
+		fmt.Println(x + y)
+	}(10, 20)
+
+	var f = adder(10)
+	fmt.Println(f(10)) //20
+	fmt.Println(f(20)) //40
+	fmt.Println(f(30)) //70
+
+	f1 := adder(20)
+	fmt.Println(f1(40)) //60
+	fmt.Println(f1(50)) //110
+
+	f1, f2 := calc2(10)
+	fmt.Println(f1(1), f2(2)) //11 9
+
+	fmt.Println("start")
+	defer fmt.Println(1)
+	defer fmt.Println(2)
+	defer fmt.Println(3)
+	fmt.Println("end")
+}
+
+func f1() int {
+	x := 5
+	defer func() {
+		x++
+	}()
+	return x
+}
+
+func f2() (x int) {
+	defer func() {
+		x++
+	}()
+	return 5
+}
+
+func deferDemo() {
+	fmt.Println(f1())
+	fmt.Println(f2())
+}
+
+func pointDemo() {
+	fmt.Println("pointDemo")
+	a := 10
+	b := &a // 取变量a的地址，将指针保存到b中
+	fmt.Printf("type of b:%T\n", b)
+	c := *b // 指针取值（根据指针去内存取值）
+	fmt.Printf("type of c:%T\n", c)
+	fmt.Printf("value of c:%v\n", c)
+
+	a1 := new(int)
+	b1 := new(bool)
+	fmt.Printf("%T\n", a1) // *int
+	fmt.Printf("%T\n", b1) // *bool
+	fmt.Println(*a1)       // 0
+	fmt.Println(*b1)       // false
 }

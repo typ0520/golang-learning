@@ -244,16 +244,172 @@ a := [3][2]string{
 }
 ```
 
-### 变长数组
+### 切片
 
 make([]T, size, cap)
 
 ```
 a := make([]int, 2, 10)
-	fmt.Println(a)      //[0 0]
-	fmt.Println(len(a)) //2
-	fmt.Println(cap(a)) //10
+fmt.Println(a)      //[0 0]
+fmt.Println(len(a)) //2
+fmt.Println(cap(a)) //10
 
 var a []string              //声明一个字符串切片
 ```
 
+### map
+
+map是一种无序的基于key-value的数据结构，Go语言中的map是引用类型
+
+```
+scoreMap := make(map[string]int, 8)
+scoreMap["张三"] = 90
+scoreMap["小明"] = 100
+fmt.Println(scoreMap)
+fmt.Println(scoreMap["小明"])
+fmt.Printf("type of a:%T\n", scoreMap)
+
+//判断key是否存在
+v, ok := scoreMap["张三"]
+if ok {
+    fmt.Println(v)
+} else {
+    fmt.Println("not found")
+}
+
+//遍历
+for k, v := range scoreMap {
+    fmt.Println(k)
+    fmt.Println(v)
+}
+for k := range scoreMap {
+    fmt.Println(k)
+}
+for _, v := range scoreMap {
+    fmt.Println(v)
+}
+
+//删除键值对
+delete(scoreMap, "张三")
+
+for k, v := range scoreMap {
+    fmt.Println(k)
+    fmt.Println(v)
+}
+```
+
+### 函数
+
+```
+func 函数名(参数)(返回值){
+    函数体
+}
+```
+
+```
+func intSum(x int, y int) int {
+	return x + y
+}
+
+//可变参数
+func intSum2(x ...int) int {
+	fmt.Println(x) //x是一个切片
+	sum := 0
+	for _, v := range x {
+		sum = sum + v
+	}
+	return sum
+}
+
+//定义函数类型
+type calculation func(int, int) int
+func add(x, y int) int {
+	return x + y
+}
+func sub(x, y int) int {
+	return x - y
+}
+var c calculation
+c = add
+
+
+//匿名函数
+// 将匿名函数保存到变量
+add := func(x, y int) {
+    fmt.Println(x + y)
+}
+add(10, 20) // 通过变量调用匿名函数
+
+//自执行函数：匿名函数定义完加()直接执行
+func(x, y int) {
+    fmt.Println(x + y)
+}(10, 20)
+```
+
+### defer语句
+
+```
+fmt.Println("start")
+defer fmt.Println(1)
+defer fmt.Println(2)
+defer fmt.Println(3)
+fmt.Println("end")
+
+start
+end
+3
+2
+1
+```
+
+```
+func calc(index string, a, b int) int {
+	ret := a + b
+	fmt.Println(index, a, b, ret)
+	return ret
+}
+
+func main() {
+	x := 1
+	y := 2
+	defer calc("AA", x, calc("A", x, y))
+	x = 10
+	defer calc("BB", x, calc("B", x, y))
+	y = 20
+}
+
+A 1 2 3
+B 10 2 12
+BB 10 12 22
+AA 1 3 4
+```
+
+### 内置函数介绍
+
+```
+close	主要用来关闭channel
+len	用来求长度，比如string、array、slice、map、channel
+new	用来分配内存，主要用来分配值类型，比如int、struct。返回的是指针
+make	用来分配内存，主要用来分配引用类型，比如chan、map、slice
+append	用来追加元素到数组、slice中
+panic和recover	用来做错误处理
+```
+
+### 指针
+
+```
+//指针取值
+a := 10
+b := &a // 取变量a的地址，将指针保存到b中
+fmt.Printf("type of b:%T\n", b)
+c := *b // 指针取值（根据指针去内存取值）
+fmt.Printf("type of c:%T\n", c)
+fmt.Printf("value of c:%v\n", c)
+
+type of b:*int
+type of c:int
+value of c:10
+
+make只用于slice、map以及channel的初始化，返回的还是这三个引用类型本身；
+而new用于类型的内存分配，并且内存对应的值为类型零值，返回的是指向类型的指针。
+```
