@@ -1,9 +1,16 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"io"
+	"io/ioutil"
+	"log"
 	"math"
+	"net"
+	"os"
 	"reflect"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -73,7 +80,12 @@ func main() {
 	structDemo()
 	interfaceDemo()
 	reflectDemo()
-	goroutineDemo()
+	//goroutineDemo()
+	netDemo()
+	timeDemo()
+	logDemo()
+	fileDemo()
+	strconvDemo()
 }
 
 func sqrtDemo() {
@@ -656,4 +668,255 @@ func goroutineDemo3() {
 	go recv(ch)
 	ch <- 10
 	fmt.Println("发送成功")
+}
+
+func netDemo() {
+	// go tcpClientDemo()
+	// tcpServerDemo()
+}
+
+func process(conn net.Conn) {
+	defer conn.Close()
+	for {
+		reader := bufio.NewReader(conn)
+		var buf [128]byte
+		n, err := reader.Read(buf[:])
+		if err != nil {
+			fmt.Println("read from client failed, err:", err)
+			break
+		}
+		recvStr := string(buf[:n])
+		if recvStr == "close" {
+			fmt.Println("bye")
+			break
+		}
+		fmt.Println("收到client端发来的数据", recvStr)
+		b := []byte(recvStr)
+		conn.Write(b)
+	}
+}
+
+func tcpServerDemo() {
+	listen, err := net.Listen("tcp", "127.0.0.1:20000")
+	if err != nil {
+		fmt.Println("listen failed, err:", err)
+		return
+	}
+	for {
+		conn, err := listen.Accept()
+		if err != nil {
+			fmt.Println("accept failed, err:", err)
+			continue
+		}
+		go process(conn)
+	}
+}
+
+func tcpClientDemo() {
+	fmt.Println("tcpClientDemo")
+	conn, err := net.Dial("tcp", "127.0.0.1:20000")
+	if err != nil {
+		fmt.Println("err:", err)
+		return
+	}
+	defer conn.Close()
+	inputReader := bufio.NewReader(os.Stdin)
+	for {
+		input, _ := inputReader.ReadString('\n')
+		inputInfo := strings.Trim(input, "\r\n")
+		if strings.ToUpper(inputInfo) == "Q" {
+			return
+		}
+		_, err = conn.Write([]byte(inputInfo))
+		if err != nil {
+			return
+		}
+		buf := [512]byte{}
+		n, err := conn.Read(buf[:])
+		if err != nil {
+			fmt.Println("recv failed, er:", err)
+			return
+		}
+		recvStr := string(buf[:n])
+		fmt.Println("收到server端发来的数据", recvStr)
+	}
+}
+
+func timeDemo() {
+	//获取当前时间
+	now := time.Now()
+	fmt.Printf("current time: %v\n", now)
+
+	year := now.Year()     //年
+	month := now.Month()   //月
+	day := now.Day()       //日
+	hour := now.Hour()     //小时
+	minute := now.Minute() //分钟
+	second := now.Second() //秒
+	fmt.Printf("%d-%02d-%02d %02d:%02d:%02d\n", year, month, day, hour, minute, second)
+
+	//获取当前时间戳
+	timestamp1 := now.Unix()     //时间戳
+	timestamp2 := now.UnixNano() //纳秒时间戳
+	fmt.Printf("current timestamp1:%v\n", timestamp1)
+	fmt.Printf("current timestamp2:%v\n", timestamp2)
+
+	//时间间隔(纳秒为单位)
+	// const (
+	// 	Nanosecond  Duration = 1
+	// 	Microsecond          = 1000 * Nanosecond
+	// 	Millisecond          = 1000 * Microsecond
+	// 	Second               = 1000 * Millisecond
+	// 	Minute               = 60 * Second
+	// 	Hour                 = 60 * Minute
+	// )
+
+	//时间操作
+	later := now.Add(time.Hour) // 当前时间加1小时后的时间
+	fmt.Println(later)
+
+	d := now.Sub(later)
+	fmt.Println(d)
+
+	fmt.Printf("时间是否相等: %t\n", later.Equal(now))
+	fmt.Printf("时间是否在xx之前: %t\n", later.Before(now))
+	fmt.Printf("时间是否在xx之后: %t\n", later.After(now))
+
+	//定时器
+	ticker := time.Tick(time.Second) //定义一个1秒间隔的定时器
+	for i := range ticker {
+		fmt.Println(i) //每秒都会执行的任务
+		break
+	}
+
+	//时间格式化(格式化的模板为Go的出生时间2006年1月2号15点04分 Mon Jan)
+	fmt.Println(now.Format("2006-01-02 15:04:05"))
+}
+
+func logDemo() {
+	log.Println("日志") //2020/11/23 11:38:21 日志
+
+	//log.Fatalln("这是一条会触发fatal的日志。")
+	//引发panic的日志
+	//log.Panicln("这是一条会触发panic的日志。")
+}
+
+func fileDemo() {
+	//打开关闭文件
+	file, err := os.Open("./main.go")
+	if err != nil {
+		fmt.Println("open file failed!, err:", err)
+		return
+	}
+	defer file.Close()
+	//读取文件
+	var tmp = make([]byte, 128)
+	n, err := file.Read(tmp)
+	if err == io.EOF {
+		fmt.Println("文件读完了")
+		return
+	}
+	if err != nil {
+		fmt.Println("read file failed, err:", err)
+		return
+	}
+	fmt.Printf("读取了%d字节数据\n", n)
+	fmt.Println(string(tmp[:n]))
+
+	//循环读取文件所有内容
+	var content []byte
+	for {
+		n, err := file.Read(tmp)
+		if err == io.EOF {
+			fmt.Println("文件读完了")
+			break
+		}
+		if err != nil {
+			fmt.Println("read file failed, err:", err)
+			return
+		}
+		content = append(content, tmp[:n]...)
+	}
+	fmt.Println(string(content))
+
+	// bufio按行读取示例
+	reader := bufio.NewReader(file)
+	for {
+		line, err := reader.ReadString('\n')
+		if err == io.EOF {
+			if len(line) != 0 {
+				fmt.Println(line)
+			}
+			break
+		}
+		if err != nil {
+			fmt.Println("read file failed, err:", err)
+			return
+		}
+		fmt.Print(line)
+	}
+
+	//ioutil读取整个文件
+	buf, err := ioutil.ReadFile("./main.go")
+	if err != nil {
+		fmt.Println("read file failed, err: ", err)
+		return
+	}
+	fmt.Println(string(buf))
+
+	//file2, err := os.OpenFile("output.txt", os.O_CREATE | os.O_TRUNC | os.O_WRONLY, 0666)
+	//写入
+	// file.Write([]byte(str))       //写入字节切片数据
+	// file.WriteString("hello 小王子") //直接写入字符串数据
+
+	// writer := bufio.NewWriter(file)
+	// writer.WriteString("hello沙河\n") //将数据先写入缓存
+	// writer.Flush() //将缓存中的内容写入文件
+
+	//err := ioutil.WriteFile("./xx.txt", []byte(str), 0666)
+}
+
+func strconvDemo() {
+	//string -> int
+	s1 := "100"
+	i1, err := strconv.Atoi(s1)
+	if err != nil {
+		fmt.Println("can't convert to int")
+	} else {
+		fmt.Printf("type: %T value: %#v\n", i1, i1)
+	}
+
+	//int -> string
+	i2 := 200
+	s2 := strconv.Itoa(i2)
+	fmt.Printf("type:%T value:%#v\n", s2, s2)
+
+	//parse函数
+	//string -> bool
+	s3 := "false"
+	b1, _ := strconv.ParseBool(s3)
+	fmt.Printf("type:%T value:%#v\n", b1, b1)
+
+	//string -> int
+	s4 := "100"
+	i3, err := strconv.Atoi(s4)
+	if err != nil {
+		fmt.Println("can't convert to int")
+	} else {
+		fmt.Printf("type: %T value: %#v\n", i3, i3)
+	}
+	//ParseUint 类似ParseInt但不接受正负号，用于无符号整型
+
+	//string -> float
+	s5 := "3.14"
+	f1, _ := strconv.ParseFloat(s5, 2)
+	fmt.Printf("type:%T value:%#v\n", f1, f1)
+
+	//Format系列函数
+	//FormatBool
+	//FormatInt
+	var i4 int64 = 0xff
+	fmt.Printf("%#v %#v %#v\n", strconv.FormatInt(i4, 2), strconv.FormatInt(i4, 10), strconv.FormatInt(i4, 16))
+	//FormatUint
+	//FormatFloat
 }

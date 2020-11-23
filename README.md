@@ -834,6 +834,300 @@ func main() {
 
 ### 单元测试
 
+```
+类型	格式	作用
+测试函数	函数名前缀为Test	测试程序的一些逻辑行为是否正确
+基准函数	函数名前缀为Benchmark	测试函数的性能
+示例函数	函数名前缀为Example	为文档提供示例文档
+```
+
+```
+//Demo_test.go
+
+package main
+
+import (
+	"testing"
+)
+
+func TestAdd(t *testing.T) {
+	excepted := 3
+	got := 1 + 2
+	if got != excepted {
+		t.Errorf("excepted:%v, got:%v", excepted, got) // 测试失败输出错误提示
+	}
+}
+```
+
+### 常用标准库
+
+- fmat与格式化占位符
+
+```
+//Print 标准输出
+//Printf 格式化输出
+//Println 输出的内容结尾添加一个换行符
+
+//输出到一个io.Writer接口类型的变量w中，我们通常用这个函数往文件中写入内容
+//Fprint
+//Fprintf
+//Fprintln
+
+//输出到字符串
+//Sprint
+//Sprintf
+//Sprintln
+
+//Errorf 格式化字符串对应的错误
+
+//格式化占位符
+%v	值的默认格式表示
+%+v	类似%v，但输出结构体时会添加字段名
+%#v	值的Go语法表示
+%T	打印值的类型
+%%	百分号
+%t 布尔值 true/false
+整型
+%b	表示为二进制
+%c	该值对应的unicode码值
+%d	表示为十进制
+%o	表示为八进制
+%x	表示为十六进制，使用a-f
+%X	表示为十六进制，使用A-F
+%U	表示为Unicode格式：U+1234，等价于”U+%04X”
+%q	该值对应的单引号括起来的go语法字符字面值，必要时会采用安全的转义表示
+浮点数与复数
+%b	无小数部分、二进制指数的科学计数法，如-123456p-78
+%e	科学计数法，如-1234.456e+78
+%E	科学计数法，如-1234.456E+78
+%f	有小数部分但无指数部分，如123.456
+%F	等价于%f
+%g	根据实际情况采用%e或%f格式（以获得更简洁、准确的输出）
+%G	根据实际情况采用%E或%F格式（以获得更简洁、准确的输出）
+字符串和[]byte
+%s	直接输出字符串或者[]byte
+%q	该值对应的双引号括起来的go语法字符串字面值，必要时会采用安全的转义表示
+%x	每个字节用两字符十六进制数表示（使用a-f
+%X	每个字节用两字符十六进制数表示（使用A-F）
+指针
+%p	表示为十六进制，并加上前导的0x
+宽度标识符
+%f	默认宽度，默认精度
+%9f	宽度9，默认精度
+%.2f	默认宽度，精度2
+%9.2f	宽度9，精度2
+%9.f	宽度9，精度0
+```
+
+```
+
+bufio.NewReader//从终端获取完整内容
+
+reader := bufio.NewReader(os.Stdin) // 从标准输入生成读对象
+fmt.Print("请输入内容：")
+text, _ := reader.ReadString('\n') // 读到换行
+text = strings.TrimSpace(text)
+fmt.Printf("%#v\n", text)
+```
+
+- time
+
+```
+//获取当前时间
+now := time.Now()
+fmt.Printf("current time: %v\n", now)
+
+year := now.Year()     //年
+month := now.Month()   //月
+day := now.Day()       //日
+hour := now.Hour()     //小时
+minute := now.Minute() //分钟
+second := now.Second() //秒
+fmt.Printf("%d-%02d-%02d %02d:%02d:%02d\n", year, month, day, hour, minute, second)
+
+//获取当前时间戳
+timestamp1 := now.Unix()     //时间戳
+timestamp2 := now.UnixNano() //纳秒时间戳
+fmt.Printf("current timestamp1:%v\n", timestamp1)
+fmt.Printf("current timestamp2:%v\n", timestamp2)
+
+//时间间隔(纳秒为单位)
+// const (
+// 	Nanosecond  Duration = 1
+// 	Microsecond          = 1000 * Nanosecond
+// 	Millisecond          = 1000 * Microsecond
+// 	Second               = 1000 * Millisecond
+// 	Minute               = 60 * Second
+// 	Hour                 = 60 * Minute
+// )
+
+//时间操作
+later := now.Add(time.Hour) // 当前时间加1小时后的时间
+fmt.Println(later)
+
+d := now.Sub(later)
+fmt.Println(d)
+
+fmt.Printf("时间是否相等: %t\n", later.Equal(now))
+fmt.Printf("时间是否在xx之前: %t\n", later.Before(now))
+fmt.Printf("时间是否在xx之后: %t\n", later.After(now))
+
+//定时器
+ticker := time.Tick(time.Second) //定义一个1秒间隔的定时器
+for i := range ticker {
+	fmt.Println(i) //每秒都会执行的任务
+	break
+}
+
+//时间格式化(格式化的模板为Go的出生时间2006年1月2号15点04分 Mon Jan)
+fmt.Println(now.Format("2006-01-02 15:04:05"))
+```
+
+- 获取命令行参数
+
+```
+package main
+
+import (
+	"fmt"
+	"os"
+)
+
+//os.Args demo
+func main() {
+	//os.Args是一个[]string
+	if len(os.Args) > 0 {
+		for index, arg := range os.Args {
+			fmt.Printf("args[%d]=%v\n", index, arg)
+		}
+	}
+}
+```
+
+- 文件操作
+
+```
+//打开关闭文件
+file, err := os.Open("./main.go")
+if err != nil {
+	fmt.Println("open file failed!, err:", err)
+	return
+}
+defer file.Close()
+//读取文件
+var tmp = make([]byte, 128)
+n, err := file.Read(tmp)
+if err == io.EOF {
+	fmt.Println("文件读完了")
+	return
+}
+if err != nil {
+	fmt.Println("read file failed, err:", err)
+	return
+}
+fmt.Printf("读取了%d字节数据\n", n)
+fmt.Println(string(tmp[:n]))
+
+//循环读取文件所有内容
+var content []byte
+for {
+	n, err := file.Read(tmp)
+	if err == io.EOF {
+		fmt.Println("文件读完了")
+		break
+	}
+	if err != nil {
+		fmt.Println("read file failed, err:", err)
+		return
+	}
+	content = append(content, tmp[:n]...)
+}
+fmt.Println(string(content))
+
+// bufio按行读取示例
+reader := bufio.NewReader(file)
+for {
+	line, err := reader.ReadString('\n')
+	if err == io.EOF {
+		if len(line) != 0 {
+			fmt.Println(line)
+		}
+		break
+	}
+	if err != nil {
+		fmt.Println("read file failed, err:", err)
+		return
+	}
+	fmt.Print(line)
+}
+
+//ioutil读取整个文件
+buf, err := ioutil.ReadFile("./main.go")
+if err != nil {
+	fmt.Println("read file failed, err: ", err)
+	return
+}
+fmt.Println(string(buf))
+
+//file2, err := os.OpenFile("output.txt", os.O_CREATE | os.O_TRUNC | os.O_WRONLY, 0666)
+//写入
+// file.Write([]byte(str))       //写入字节切片数据
+// file.WriteString("hello 小王子") //直接写入字符串数据
+
+// writer := bufio.NewWriter(file)
+// writer.WriteString("hello沙河\n") //将数据先写入缓存
+// writer.Flush() //将缓存中的内容写入文件
+
+//err := ioutil.WriteFile("./xx.txt", []byte(str), 0666)
+```
+
+- strconv包
+
+```
+//string -> int
+s1 := "100"
+i1, err := strconv.Atoi(s1)
+if err != nil {
+	fmt.Println("can't convert to int")
+} else {
+	fmt.Printf("type: %T value: %#v\n", i1, i1)
+}
+
+//int -> string
+i2 := 200
+s2 := strconv.Itoa(i2)
+fmt.Printf("type:%T value:%#v\n", s2, s2)
+
+//parse函数
+//string -> bool
+s3 := "false"
+b1, _ := strconv.ParseBool(s3)
+fmt.Printf("type:%T value:%#v\n", b1, b1)
+
+//string -> int
+s4 := "100"
+i3, err := strconv.Atoi(s4)
+if err != nil {
+	fmt.Println("can't convert to int")
+} else {
+	fmt.Printf("type: %T value: %#v\n", i3, i3)
+}
+//ParseUint 类似ParseInt但不接受正负号，用于无符号整型
+
+//string -> float
+s5 := "3.14"
+f1, _ := strconv.ParseFloat(s5, 2)
+fmt.Printf("type:%T value:%#v\n", f1, f1)
+
+//Format系列函数
+//FormatBool
+//FormatInt
+var i4 int64 = 0xff
+fmt.Printf("%#v %#v %#v\n", strconv.FormatInt(i4, 2), strconv.FormatInt(i4, 10), strconv.FormatInt(i4, 16))
+//FormatUint
+//FormatFloat
+```
+
 ### 问题
 
 ```
