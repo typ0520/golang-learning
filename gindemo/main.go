@@ -10,7 +10,6 @@ import (
 
 func main() {
 	r := gin.Default()
-
 	r.MaxMultipartMemory = 8 << 20 // 8 MiB
 
 	r.GET("/hello", func(c *gin.Context) {
@@ -31,7 +30,7 @@ func main() {
 		name := c.Param("name")
 		c.String(http.StatusOK, "Hello %s", name)
 	})
-	r.GET("/welcome", func(c *gin.Context) {
+	r.GET("/welcome2", func(c *gin.Context) {
 		firstname := c.DefaultQuery("firstname", "Guest")
 		lastname := c.Query("lastname") // shortcut for c.Request.URL.Query().Get("lastname")
 
