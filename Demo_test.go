@@ -4,6 +4,8 @@ import (
 	"testing"
 )
 
+//go test
+
 func TestAdd(t *testing.T) {
 	excepted := 3
 	got := 1 + 2
