@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"strings"
+	"log"
 )
 
 func main() {
@@ -40,36 +40,30 @@ func main() {
 	// 	来源：力扣（LeetCode）
 	// 	链接：https://leetcode-cn.com/problems/longest-substring-without-repeating-characters
 	// 	著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
-	// s1 := "abcabcbb"
-	// s2 := "bbbb"
-	// s3 := "pwwkew"
-	// s4 := ""
-	// s5 := "dvdf"
-	s6 := "asjrgapa"
 
-	// fmt.Printf("%s , %d\n", s1, lengthOfLongestSubstring(s1))
-	// fmt.Printf("%s , %d\n", s2, lengthOfLongestSubstring(s2))
-	// fmt.Printf("%s , %d\n", s3, lengthOfLongestSubstring(s3))
-	// fmt.Printf("%s , %d\n", s4, lengthOfLongestSubstring(s4))
-	// fmt.Printf("%s , %d\n", s5, lengthOfLongestSubstring(s5))
-	fmt.Printf("%s , %d\n", s6, lengthOfLongestSubstring(s6))
+	table := make(map[string]int)
+	table["abcabcbb"] = 3
+	table["bbbb"] = 1
+	table[""] = 0
+	table["dvdf"] = 3
+	for k, v := range table {
+		excepted := v
+		got := lengthOfLongestSubstring(k)
+		if got != excepted {
+			log.Fatal(fmt.Sprintf("%s excepted:%v, got:%v", k, excepted, got))
+		}
+	}
 }
 
 func lengthOfLongestSubstring(s string) int {
+	table := make(map[uint8]int)
 	max := 0
-	var str string
-	for i := 0; i < len(s); i++ {
-		for j := i; j < len(s); j++ {
-			if strings.Contains(str, fmt.Sprintf("%c", s[j])) {
-				str = fmt.Sprintf("%c", s[j])
-			} else {
-				str = fmt.Sprintf("%s%c", str, s[j])
-			}
-			if len(str) > max {
-				max = len(str)
-			}
+	for i, c := range s {
+		index, ok := table[uint8(c)]
+		if (ok || i == len(s)-1) && i-index > max {
+			max = i - index
 		}
-		str = ""
+		table[uint8(c)] = i
 	}
 	return max
 }
