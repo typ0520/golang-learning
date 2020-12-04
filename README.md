@@ -203,7 +203,7 @@ for {
 }
 ```
 
-### 数组(值类型)
+### 数组
 var 数组变量名 [元素数量]T
 
 ```
@@ -241,6 +241,27 @@ a := [3][2]string{
 	}
 	fmt.Println(a) //[[北京 上海] [广州 深圳] [成都 重庆]]
 	fmt.Println(a[2][1]) //支持索引取值:重庆
+}
+
+定长的是值类型、非定长是引用类型
+func main() {
+	a := [3]int{10, 20, 30}
+	modifyArray(a)
+	fmt.Println(a)//[10 20 30]
+}
+
+func modifyArray(x [3]int) {
+	x[0] = 100
+}
+
+func main() {
+	a := []int{10, 20, 30}
+	modifyArray(a)
+	fmt.Println(a)//[100 20 30]
+}
+
+func modifyArray(x []int) {
+	x[0] = 100
 }
 ```
 
@@ -860,6 +881,13 @@ func TestAdd(t *testing.T) {
 ```
 
 ### 常用标准库
+
+- math
+
+```
+//开方
+math.Sqrt
+```
 
 - fmat与格式化占位符
 

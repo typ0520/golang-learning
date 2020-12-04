@@ -73,6 +73,7 @@ func main() {
 	forDemo()
 	arrayDemo()
 	array2Demo()
+	array3emo()
 	mapDemo()
 	funcDemo()
 	deferDemo()
@@ -155,6 +156,28 @@ func array2Demo() {
 	s2 = append(s, 1)       // [1]
 	s2 = append(s, 2, 3, 4) // [1 2 3 4]
 	fmt.Println(s2)
+}
+
+func array3emo() {
+	nums1 := [3]int{1, 2, 3}
+	nums2 := []int{1, 2, 3}
+
+	fmt.Printf("&nums1: %p\n", &nums1)
+	fmt.Printf("&nums1[0]: %p\n", &nums1[0])
+	fmt.Printf("&nums2: %p\n", &nums2)
+	fmt.Printf("&nums2[0]: %p\n", &nums2[0])
+	modifyArray1(nums1)
+	modifyArray2(nums2)
+}
+
+func modifyArray1(x [3]int) {
+	fmt.Printf("func &nums1: %p\n", &x)
+	fmt.Printf("func &nums1[0]: %p\n", &x[0])
+}
+
+func modifyArray2(x []int) {
+	fmt.Printf("func &nums2: %p\n", &x)
+	fmt.Printf("func &nums2[0]: %p\n", &x[0])
 }
 
 func mapDemo() {
