@@ -55,7 +55,7 @@ func main() {
 func decodeString(s string) string {
 	repetStartIndex, repetEndIndex, prefixIndex, suffixIndex, prefixCount, suffixCount := -1, -1, -1, -1, 0 ,0 
 	for i := 0; i < len(s); i++ {
-		if s[i] >= "0"[0] && s[i] <= "9"[0] && prefixIndex == -1 {
+		if s[i] >= '0' && s[i] <= '9' && prefixIndex == -1 {
 			if repetStartIndex == -1 {
 				repetStartIndex = i
 			} 
@@ -63,7 +63,7 @@ func decodeString(s string) string {
 				repetEndIndex = i
 			}
 		}
-		if s[i] == "["[0] {
+		if s[i] == '[' {
 			if prefixIndex == -1 && i != 0 && repetEndIndex == i-1 {
 				prefixIndex = i
 			}
@@ -73,7 +73,7 @@ func decodeString(s string) string {
 			}
 		}
 
-		if s[i] == "]"[0] && prefixIndex != -1 {
+		if s[i] == ']' && prefixIndex != -1 {
 			suffixCount++
 
 			if prefixCount == suffixCount {
