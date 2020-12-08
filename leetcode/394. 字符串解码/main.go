@@ -53,12 +53,12 @@ func main() {
 }
 
 func decodeString(s string) string {
-	repetStartIndex, repetEndIndex, prefixIndex, suffixIndex, prefixCount, suffixCount := -1, -1, -1, -1, 0 ,0 
+	repetStartIndex, repetEndIndex, prefixIndex, suffixIndex, prefixCount, suffixCount := -1, -1, -1, -1, 0, 0
 	for i := 0; i < len(s); i++ {
 		if s[i] >= '0' && s[i] <= '9' && prefixIndex == -1 {
 			if repetStartIndex == -1 {
 				repetStartIndex = i
-			} 
+			}
 			if repetStartIndex != -1 {
 				repetEndIndex = i
 			}
@@ -67,7 +67,7 @@ func decodeString(s string) string {
 			if prefixIndex == -1 && i != 0 && repetEndIndex == i-1 {
 				prefixIndex = i
 			}
-			
+
 			if prefixIndex != -1 {
 				prefixCount++
 			}
@@ -82,11 +82,11 @@ func decodeString(s string) string {
 				result := decodeString(s[prefixIndex+1 : suffixIndex])
 				child := ""
 				for i := 0; i < repeat; i++ {
-					child = fmt.Sprintf("%s%s", child, result)
+					child += result
 				}
-				s = fmt.Sprintf("%s%s%s", s[0:repetStartIndex], child, s[suffixIndex+1:])
+				s = s[0:repetStartIndex] + child + s[suffixIndex+1:]
 				i = repetStartIndex + len(child) - 1
-				repetStartIndex, repetEndIndex, prefixIndex, suffixIndex, prefixCount, suffixCount = -1, -1, -1, -1, 0 ,0 
+				repetStartIndex, repetEndIndex, prefixIndex, suffixIndex, prefixCount, suffixCount = -1, -1, -1, -1, 0, 0
 			}
 		}
 	}
