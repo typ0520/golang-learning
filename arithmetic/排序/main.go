@@ -31,6 +31,14 @@ func main() {
 			log.Fatal("error")
 		}
 	}
+
+	nums4 := []int{47, 29, 71, 99, 78, 19, 24, 47}
+	quickSort(nums4, 0, len(nums4)-1)
+	for i := 0; i < len(nums4); i++ {
+		if i != 0 && nums4[i] < nums4[i-1] {
+			log.Fatal("error")
+		}
+	}
 }
 
 // 冒泡排序 O(n*n)
@@ -69,35 +77,27 @@ func selectSort(nums []int) {
 func insertSort(nums []int) {
 	fmt.Println("-----------insertSort-----------")
 	fmt.Println(nums)
-	// var sortArray = function(nums) {
-	// 	const length = nums.length
-	// 	// 需要从1开始
-	// 	for(let i = 1; i < length; i++){
-	// 		let j = i
-	// 		let tempValue = nums[i]  // 获取要比较的值
-	// 		while(j > 0 && nums[j - 1] > tempValue){
-	// 			nums[j] = nums[j - 1]
-	// 			j--
-	// 		}
-	// 		nums[j] = tempValue
-	// 		console.log(nums)
-	// 	}
-	// 	return nums
-	// };
-	for i := 0; i < len(nums); i++ {
-		for j := i + 1; j < len(nums); j++ {
-			
+	for i := 1; i < len(nums); i++ {
+		j := i
+		tempValue := nums[i]
+		for j > 0 && nums[j-1] > tempValue {
+			nums[j] = nums[j-1]
+			j--
 		}
+		nums[j] = tempValue
 		fmt.Println(nums)
 	}
 }
 
 // 快速排序
 func quickSort(nums []int, l int, r int) {
-
+	fmt.Println("-----------quickSort-----------")
+	fmt.Println(nums)
+	// base := nums[l]
+	// quickSort(nums, l, middle)
+	// quickSort(nums, middle, r)
 }
 
 // 堆排序
 // 归并排序
-
 // 希尔排序
