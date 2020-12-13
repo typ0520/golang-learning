@@ -10,6 +10,7 @@ import (
 	"net"
 	"os"
 	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -74,6 +75,7 @@ func main() {
 	arrayDemo()
 	array2Demo()
 	array3emo()
+	arraySortDemo()
 	mapDemo()
 	funcDemo()
 	deferDemo()
@@ -168,6 +170,57 @@ func array3emo() {
 	fmt.Printf("&nums2[0]: %p\n", &nums2[0])
 	modifyArray1(nums1)
 	modifyArray2(nums2)
+}
+
+type User struct {
+	num int
+}
+
+func arraySortDemo() {
+	strs := []string{"c", "a", "b"}
+	sort.Strings(strs)
+	fmt.Println("Strings:", strs)
+
+	ints := []int{7, 2, 4}
+	sort.Ints(ints)
+	fmt.Println("Ints:   ", ints)
+
+	s := sort.IntsAreSorted(ints)
+	fmt.Println("Sorted: ", s)
+
+	a := []User{
+		User{
+			num: 5,
+		},
+		User{
+			num: 3,
+		},
+		User{
+			num: 1,
+		},
+	}
+	fmt.Println(a)
+	sort.SliceStable(a, func(i, j int) bool {
+		return a[i].num < a[j].num
+	})
+	fmt.Println(a)
+
+	family := []struct {
+		Name string
+		Age  int
+	}{
+		{"Alice", 23},
+		{"David", 2},
+		{"Eve", 2},
+		{"Bob", 25},
+	}
+
+	fmt.Println(family)
+	// Sort by age, keeping original order or equal elements.
+	sort.SliceStable(family, func(i, j int) bool {
+		return family[i].Age < family[j].Age
+	})
+	fmt.Println(family)
 }
 
 func modifyArray1(x [3]int) {

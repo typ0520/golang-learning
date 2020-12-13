@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 )
 
 func main() {
@@ -75,15 +76,10 @@ func decodeString(s string) string {
 
 		if s[i] == ']' && prefixIndex != -1 {
 			suffixCount++
-
 			if prefixCount == suffixCount {
 				suffixIndex = i
 				repeat, _ := strconv.Atoi(s[repetStartIndex : repetEndIndex+1])
-				result := decodeString(s[prefixIndex+1 : suffixIndex])
-				child := ""
-				for i := 0; i < repeat; i++ {
-					child += result
-				}
+				child := strings.Repeat(decodeString(s[prefixIndex+1:suffixIndex]), repeat)
 				s = s[0:repetStartIndex] + child + s[suffixIndex+1:]
 				i = repetStartIndex + len(child) - 1
 				repetStartIndex, repetEndIndex, prefixIndex, suffixIndex, prefixCount, suffixCount = -1, -1, -1, -1, 0, 0

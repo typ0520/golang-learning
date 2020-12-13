@@ -84,5 +84,7 @@ func main() {
 	r.GET("/test2", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"hello": "world"})
 	})
-	r.Run(":9000")
+	go r.Run(":9000")
+
+	fmt.Println("哈哈")
 }
