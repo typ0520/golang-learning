@@ -70,25 +70,26 @@ func main() {
 
 	fmt.Println(len("a" + "b"))
 
-	sqrtDemo()
-	forDemo()
-	arrayDemo()
-	array2Demo()
-	array3emo()
-	arraySortDemo()
-	mapDemo()
-	funcDemo()
-	deferDemo()
-	pointDemo()
-	structDemo()
-	interfaceDemo()
-	reflectDemo()
-	//goroutineDemo()
-	netDemo()
-	timeDemo()
-	logDemo()
-	fileDemo()
-	strconvDemo()
+	// sqrtDemo()
+	// forDemo()
+	// arrayDemo()
+	// array2Demo()
+	// array3emo()
+	// arraySortDemo()
+	// mapDemo()
+	// funcDemo()
+	// deferDemo()
+	// pointDemo()
+	// structDemo()
+	// interfaceDemo()
+	// reflectDemo()
+	// //goroutineDemo()
+	// netDemo()
+	// timeDemo()
+	// logDemo()
+	// fileDemo()
+	// strconvDemo()
+	envDemo()
 }
 
 func sqrtDemo() {
@@ -995,4 +996,8 @@ func strconvDemo() {
 	fmt.Printf("%#v %#v %#v\n", strconv.FormatInt(i4, 2), strconv.FormatInt(i4, 10), strconv.FormatInt(i4, 16))
 	//FormatUint
 	//FormatFloat
+}
+
+func envDemo() {
+	fmt.Printf("GOROOT: %s, %d\n", os.Getenv("GOROOT2"), len(os.Getenv("GOROOT2")))
 }
