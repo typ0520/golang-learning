@@ -15,6 +15,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/robfig/cron/v3"
 )
 
 func init() {
@@ -89,7 +91,8 @@ func main() {
 	// logDemo()
 	// fileDemo()
 	// strconvDemo()
-	envDemo()
+	// envDemo()
+	cronDemo()
 }
 
 func sqrtDemo() {
@@ -999,5 +1002,15 @@ func strconvDemo() {
 }
 
 func envDemo() {
-	fmt.Printf("GOROOT: %s, %d\n", os.Getenv("GOROOT2"), len(os.Getenv("GOROOT2")))
+	fmt.Printf("TESTENV: %s, %d\n", os.Getenv("TESTENV"), len(os.Getenv("TESTENV")))
+}
+
+func cronDemo() {
+	wg.Add(1)
+	c := cron.New()
+	c.AddFunc("@every 1s", func() {
+		fmt.Println(time.Now())
+	})
+	c.Start()
+	wg.Wait()
 }
