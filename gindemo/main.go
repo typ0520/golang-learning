@@ -33,7 +33,6 @@ func main() {
 	r.GET("/welcome2", func(c *gin.Context) {
 		firstname := c.DefaultQuery("firstname", "Guest")
 		lastname := c.Query("lastname") // shortcut for c.Request.URL.Query().Get("lastname")
-
 		c.String(http.StatusOK, "Hello %s %s", firstname, lastname)
 	})
 	r.POST("/form_post", func(c *gin.Context) {

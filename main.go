@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/robfig/cron/v3"
+	"github.com/google/uuid"
 )
 
 func init() {
@@ -92,7 +93,8 @@ func main() {
 	// fileDemo()
 	// strconvDemo()
 	// envDemo()
-	cronDemo()
+	//cronDemo()
+	//uuidDemo()
 }
 
 func sqrtDemo() {
@@ -1013,4 +1015,27 @@ func cronDemo() {
 	})
 	c.Start()
 	wg.Wait()
+}
+
+
+
+func generateAppId() string {
+	// chars := []string{"a", "b", "c", "d", "e", "f",
+	// "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s",
+	// "t", "u", "v", "w", "x", "y", "z", "0", "1", "2", "3", "4", "5",
+	// "6", "7", "8", "9", "A", "B", "C", "D", "E", "F", "G", "H", "I",
+	// "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V",
+	// "W", "X", "Y", "Z"}
+	uid := strings.Replace(uuid.New().String(), "-", "", -1)
+	appid := ""
+	for i := 0; i < 8; i++ {
+		fmt.Println(uid[i * 4: i * 4 + 4])
+	}
+	return appid
+}
+
+func uuidDemo() {
+	fmt.Println(generateAppId())
+	//fmt.Println(strings.Replace(uuid.New().String(), "-", "", -1))
+	fmt.Println(strconv.ParseUint("05b1", 10, 64))
 }
