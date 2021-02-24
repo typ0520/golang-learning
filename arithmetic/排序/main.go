@@ -33,7 +33,7 @@ func main() {
 	}
 
 	nums4 := []int{47, 29, 71, 99, 78, 19, 24, 47}
-	quickSort(nums4, 0, len(nums4)-1)
+	quickSort(nums4)
 	for i := 0; i < len(nums4); i++ {
 		if i != 0 && nums4[i] < nums4[i-1] {
 			log.Fatal("error")
@@ -90,12 +90,32 @@ func insertSort(nums []int) {
 }
 
 // 快速排序
-func quickSort(nums []int, l int, r int) {
+func quickSort(nums []int) {
 	fmt.Println("-----------quickSort-----------")
 	fmt.Println(nums)
-	// base := nums[l]
-	// quickSort(nums, l, middle)
-	// quickSort(nums, middle, r)
+	quickSortPartition(nums, 0, len(nums)-1);
+}
+
+func quickSortPartition(nums []int, l int, r int) {
+	if l >= r {
+		return
+	}
+	i, j := l, r
+	base := nums[l]
+	for i < j {
+		for i < j && nums[j] >= base {
+			j--
+		}
+		nums[i] = nums[j]
+		for i < j && nums[i] <= base {
+			i++
+		}
+		nums[j] = nums[i]
+	}
+	nums[i] = base
+	quickSortPartition(nums, l, i-1)
+	quickSortPartition(nums, i+1, r)
+	fmt.Println(nums)
 }
 
 // 堆排序

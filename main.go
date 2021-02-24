@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"math"
+	"math/big"
 	"net"
 	"os"
 	"reflect"
@@ -16,8 +17,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/robfig/cron/v3"
 	"github.com/google/uuid"
+	"github.com/robfig/cron/v3"
 )
 
 func init() {
@@ -93,8 +94,23 @@ func main() {
 	// fileDemo()
 	// strconvDemo()
 	// envDemo()
-	//cronDemo()
-	//uuidDemo()
+	// cronDemo()
+	// uuidDemo()
+
+	z := big.NewInt(0)
+	fmt.Println(z.Mul(big.NewInt(12), big.NewInt(2)))
+	fmt.Println(z.Sub(big.NewInt(12), big.NewInt(2)))
+
+	// for {
+	// 	time.Sleep(time.Second * 5)
+	// 	fmt.Println("ticker")
+	// }
+
+	n := 0
+	fmt.Println(n + 1)
+	n++
+
+	fmt.Println(fmt.Sprintf("%s=:%s", "hehe"))
 }
 
 func sqrtDemo() {
@@ -1017,8 +1033,6 @@ func cronDemo() {
 	wg.Wait()
 }
 
-
-
 func generateAppId() string {
 	// chars := []string{"a", "b", "c", "d", "e", "f",
 	// "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s",
@@ -1029,7 +1043,7 @@ func generateAppId() string {
 	uid := strings.Replace(uuid.New().String(), "-", "", -1)
 	appid := ""
 	for i := 0; i < 8; i++ {
-		fmt.Println(uid[i * 4: i * 4 + 4])
+		fmt.Println(uid[i*4 : i*4+4])
 	}
 	return appid
 }
